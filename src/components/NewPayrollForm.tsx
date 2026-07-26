@@ -135,7 +135,7 @@ export function NewPayrollForm() {
   return (
     <div className="space-y-6">
       {/* Step indicator */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-gray-500 shadow-sm">
         <span className={cn('font-medium', step === 'upload' ? 'text-rose-600' : 'text-gray-400')}>
           1. Upload
         </span>
@@ -214,7 +214,7 @@ export function NewPayrollForm() {
       {step === 'preview' && (
         <div className="space-y-4">
           {/* Summary */}
-          <div className="bg-rose-50 border border-rose-200 rounded-xl p-5">
+          <div className="rounded-2xl border border-rose-200 bg-gradient-to-r from-rose-50 to-white p-5 shadow-sm">
             <div className="flex items-center gap-4">
               <div className="text-center flex-1">
                 <p className="text-2xl font-heading font-bold text-rose-600">

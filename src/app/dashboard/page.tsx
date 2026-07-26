@@ -14,22 +14,26 @@ export default async function DashboardPage() {
   const completedRuns = runs.filter((r) => r.status === 'completed');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50/70">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/90 shadow-sm backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3 sm:flex-nowrap sm:py-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-rose-600 flex items-center justify-center">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-600 shadow-sm shadow-rose-200">
                 <BanknoteIcon className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h1 className="font-heading text-xl font-bold text-gray-900">Gaji</h1>
-                <p className="text-xs text-gray-500">One click. Every worker paid in USDC.</p>
+                <p className="text-xs text-gray-500">Batch payroll in USDC</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600 hidden sm:block">{employer.name}</span>
+            <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span>Demo workspace</span>
+              </div>
+              <span className="hidden text-sm text-gray-600 lg:block">{employer.name}</span>
               <Link href="/payroll/new">
                 <Button size="sm" className="gap-1.5">
                   <PlusCircle className="w-4 h-4" />
@@ -41,10 +45,30 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="mb-6 flex flex-col justify-between gap-3 rounded-2xl border border-rose-100 bg-gradient-to-r from-rose-50 via-white to-white px-5 py-4 shadow-sm sm:flex-row sm:items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-600">
+              Payroll control center
+            </p>
+            <h2 className="mt-1 font-heading text-xl font-bold text-slate-900 sm:text-2xl">
+              Keep every payday on track.
+            </h2>
+            <p className="mt-1 max-w-xl text-sm text-slate-500">
+              Prepare a roster, review the totals, and follow each worker payment from one place.
+            </p>
+          </div>
+          <Link href="/payroll/new" className="shrink-0">
+            <Button variant="outline" size="sm" className="w-full bg-white sm:w-auto">
+              Start a payroll run
+              <PlusCircle className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <div className="rounded-xl border border-rose-100 border-l-4 border-l-rose-500 bg-white p-5 shadow-sm transition-transform hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center">
                 <BanknoteIcon className="w-5 h-5 text-rose-600" />
@@ -57,7 +81,7 @@ export default async function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <div className="rounded-xl border border-blue-100 border-l-4 border-l-blue-500 bg-white p-5 shadow-sm transition-transform hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-blue-600" />
@@ -70,7 +94,7 @@ export default async function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
+          <div className="rounded-xl border border-emerald-100 border-l-4 border-l-emerald-500 bg-white p-5 shadow-sm transition-transform hover:-translate-y-0.5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
                 <Users className="w-5 h-5 text-green-600" />
