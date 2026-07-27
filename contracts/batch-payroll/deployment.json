@@ -3,7 +3,7 @@
   "contractName": "gaji-batch-payroll",
   "sdkVersion": "27.0.2",
   "wasmPath": "contracts/batch-payroll/target/wasm32v1-none/release/gaji_batch_payroll.wasm",
-  "wasmHash": "e9c1ecc0ed4583ae22193aece0783c53fb75e07b85c6c6c84f745a566dd41f5f",
+  "wasmHash": "de0cb69c85f57cb47851536dc1dda616c3399f4164f034a27a0c2b6c665cf8f1",
   "asset": {
     "name": "native XLM SAC",
     "testnet": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC"
