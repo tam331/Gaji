@@ -31,7 +31,7 @@ export default async function DashboardPage() {
             <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span>Demo workspace</span>
+                <span>Demo data · Mainnet Freighter actions</span>
               </div>
               <span className="hidden text-sm text-gray-600 lg:block">{employer.name}</span>
               <Link href="/payroll/new">

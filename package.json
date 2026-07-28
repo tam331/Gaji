@@ -26,6 +26,7 @@
     "demo": "pnpm run db:push && pnpm run seed && pnpm run dev"
   },
   "dependencies": {
+    "@stellar/freighter-api": "^6.0.1",
     "@hookform/resolvers": "^5.4.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@stellar/stellar-sdk": "^15.1.0",

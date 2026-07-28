@@ -1,10 +1,27 @@
 'use client';
 
-import { AlertCircle, BanknoteIcon, ChevronRight, Star, Upload } from 'lucide-react';
+import {
+  AlertCircle,
+  BanknoteIcon,
+  CheckCircle2,
+  ChevronRight,
+  ExternalLink,
+  Loader2,
+  Star,
+  Upload,
+  Wallet,
+} from 'lucide-react';
+import { getAddress, setAllowed, signTransaction } from '@stellar/freighter-api';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  MAINNET_PASSPHRASE,
+  BATCH_PAYROLL_CONTRACT,
+  prepareMainnetBatch,
+  submitMainnetBatch,
+} from '@/lib/mainnet-payroll';
 
 const SAMPLE_WORKERS = [
   {
@@ -72,12 +89,61 @@ export function NewPayrollForm() {
   const [workerRows, setWorkerRows] = useState(SAMPLE_WORKERS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [mainnetWallet, setMainnetWallet] = useState('');
+  const [mainnetBusy, setMainnetBusy] = useState(false);
+  const [mainnetStatus, setMainnetStatus] = useState('');
+  const [mainnetHash, setMainnetHash] = useState('');
 
   const totalUsdc = workerRows.reduce((s, w) => s + parseFloat(w.amountUsdc || '0'), 0);
 
   function loadSample() {
     setWorkerRows(SAMPLE_WORKERS);
     setStep('preview');
+  }
+
+  async function connectMainnet() {
+    try {
+      const allowed = await setAllowed();
+      if (allowed.error || !allowed.isAllowed)
+        throw new Error(allowed.error?.message ?? 'Freighter access was not allowed');
+      const address = await getAddress();
+      if (address.error || !address.address)
+        throw new Error(address.error?.message ?? 'No wallet address returned');
+      setMainnetWallet(address.address);
+    } catch (err) {
+      setMainnetStatus(err instanceof Error ? err.message : 'Could not connect Freighter');
+    }
+  }
+
+  async function fundMainnet() {
+    if (!mainnetWallet) return setMainnetStatus('Connect Freighter first.');
+    setMainnetBusy(true);
+    setMainnetStatus('Preparing Mainnet batch transaction…');
+    setMainnetHash('');
+    try {
+      const digest = await crypto.subtle.digest(
+        'SHA-256',
+        new TextEncoder().encode(`024:${runName}:${Date.now()}`),
+      );
+      const prepared = await prepareMainnetBatch(mainnetWallet, new Uint8Array(digest), workerRows);
+      const signed = await signTransaction(prepared.toXDR(), {
+        address: mainnetWallet,
+        networkPassphrase: MAINNET_PASSPHRASE,
+      });
+      if (signed.error || !signed.signedTxXdr)
+        throw new Error(signed.error?.message ?? 'Freighter did not return a signature');
+      const submitted = await submitMainnetBatch(signed.signedTxXdr);
+      if (submitted.status === 'ERROR')
+        throw new Error('Stellar rejected the Mainnet payroll batch');
+      setMainnetHash(submitted.hash);
+      setMainnetStatus(
+        'Batch created and funded on Stellar Mainnet. Each worker must claim separately.',
+      );
+    } catch (err) {
+      setMainnetStatus(err instanceof Error ? err.message : 'Mainnet payroll failed');
+    } finally {
+      setMainnetBusy(false);
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -288,6 +354,64 @@ export function NewPayrollForm() {
             </div>
           )}
 
+          <section className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">
+                  Stellar Mainnet
+                </p>
+                <p className="font-semibold text-emerald-950">
+                  Create and fund this batch with Freighter
+                </p>
+                <p className="text-xs text-emerald-800 mt-1">
+                  Native XLM SAC · worker amounts are converted from the preview values to XLM
+                  stroops
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={connectMainnet}
+                disabled={mainnetBusy}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                {mainnetWallet
+                  ? `${mainnetWallet.slice(0, 5)}…${mainnetWallet.slice(-4)}`
+                  : 'Connect Freighter'}
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={fundMainnet}
+              disabled={mainnetBusy || !mainnetWallet || workerRows.length === 0}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+            >
+              {mainnetBusy ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Wallet className="w-4 h-4" />
+              )}
+              {mainnetBusy ? 'Waiting for wallet…' : 'Fund payroll batch on Mainnet'}
+            </button>
+            {mainnetStatus && <p className="text-xs text-emerald-900">{mainnetStatus}</p>}
+            {mainnetHash && (
+              <p className="flex items-center gap-1 text-xs text-emerald-800">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <a
+                  className="underline"
+                  href={`https://stellar.expert/explorer/public/tx/${mainnetHash}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View Mainnet transaction <ExternalLink className="inline w-3 h-3" />
+                </a>
+              </p>
+            )}
+            <p className="text-[11px] font-mono text-emerald-800 truncate">
+              Contract: {BATCH_PAYROLL_CONTRACT}
+            </p>
+          </section>
+
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => setStep('upload')} disabled={loading}>
               ← Back
@@ -303,7 +427,7 @@ export function NewPayrollForm() {
               ) : (
                 <>
                   <BanknoteIcon className="w-5 h-5" />
-                  Fund & Disburse {totalUsdc.toFixed(2)} USDC
+                  Demo only · Fund & Disburse {totalUsdc.toFixed(2)} USDC
                 </>
               )}
             </Button>
