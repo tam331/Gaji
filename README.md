@@ -13,7 +13,14 @@ Small businesses often manage contractor payroll from spreadsheets and chat thre
 - Demo roster: 5 workers receiving 150 USDC each
 - Demo mode uses in-memory data so the preview works without a database or wallet
 
-The public preview is intentionally focused on the product flow. Wallet signing and mainnet broadcasting are deferred until the employer, worker addresses, asset issuer, and settlement provider are configured.
+The public preview focuses on the product flow. The repository also contains a deployed Soroban contract and a complete Mainnet batch lifecycle.
+
+## Mainnet deployment
+
+- Network: Stellar Mainnet
+- Contract: `CBD3NXEYRBUNF72EZ2NOSZH4W6CNKVMVK25A53NF5VQNKK6SLMYUC6DG`
+- Latest functional transaction (`close`): [5b5a2404…409e](https://stellar.expert/explorer/public/tx/5b5a2404a7deed6115289ea3be001d1abc3ddb392d819769022c6373a229409e)
+- Deployment manifest: [`contracts/batch-payroll/deployment.json`](contracts/batch-payroll/deployment.json)
 
 ## Stellar surface
 
@@ -26,9 +33,9 @@ The public preview is intentionally focused on the product flow. Wallet signing 
 
 ## Readiness status
 
-This repository is in hackathon readiness hardening. Simulated payroll streaming and cash-out are disabled outside non-public demo mode. No mainnet payroll proof is claimed.
+The batch-payroll contract is live on Mainnet. Verified transactions cover upload, deployment, initialization, batch creation, worker addition, funding, claim, and close.
 
-See [`docs/MAINNET_READINESS.md`](docs/MAINNET_READINESS.md).
+See [`docs/`](docs/) for architecture, API, deployment evidence, operations, testing, and user guidance.
 
 ## How a demo run works
 
@@ -63,8 +70,8 @@ Screens are captured from the local production build that powers the public prev
 
 Keep all secrets outside Git.
 
-## Mainnet gate
+## Safety boundary
 
-Mainnet requires worker/address verification, an externally signed batch, exact Horizon payment proofs, idempotency, and a reviewed provider settlement integration.
+Employers and workers authorize actions from their own wallets. The application must reconcile each transaction hash before marking a payroll stage complete.
 
 Apply `drizzle/0001_unsigned_payroll_intents.sql` before using the batch intent routes.
